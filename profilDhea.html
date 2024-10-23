@@ -1,88 +1,162 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profil Data Diri</title>
-    <link rel="stylesheet" href="profil.css">
-</head>
-<body>
+    <title>Biodata Dhea</title>
+    <link rel="stylesheet" href="styleDhea.css">
+    <script>
+        function tampilbiodata() {
+            document.querySelector("#biodataDhea").innerHTML = `
+            <h2><center>Biodata Pribadi</center></h2>
 
+                <p><strong>Nama:</strong> Dhea Mettana Kian Q</p>
+                <p><strong>Tanggal Lahir:</strong> 10 Mei 2005</p>
+                <p><strong>Alamat:</strong> Taman Asri</p>
+                <p><strong>Pendidikan:</strong> Universitas Pembangunan Jaya</p>
+                <p><strong>Pekerjaan:</strong> Mahasiswa</p>
+                <p><strong>Email:</strong> dheamettanakianq@gmail.com</p>
+                <p><strong>No. Telepon:</strong> 0895-33395-9819</p>
+            `;
+        }
+
+        function tampilpendidikan() {
+            document.querySelector("#biodataDhea").innerHTML = `
+            <h2><center>Riwayat Pendidikan</center></h2>
+  
+                <h3>Universitas Pembangunan Jaya</h3>
+                <p><strong>Program:</strong> Sarjana (S1) Sistem Informasi</p>
+                <p><strong>Periode:</strong> 2023 - Sekarang</p>
+                <p><strong>Deskripsi:</strong> Menekuni pengembangan perangkat lunak, basis data, serta analisis data, dengan fokus pada inovasi teknologi informasi. </p>
+ 
+                <h3>SMA Yadika 5</h3>
+                <p><strong>Jurusan:</strong> IPA</p>
+                <p><strong>Periode:</strong> 2020 - 2023</p>
+                <p><strong>Deskripsi:</strong> Memperdalam pemahaman di bidang ilmu pengetahuan alam, khususnya fisika dan biologi. </p>
+ 
+                <h3>SMP Yadika 5</h3>
+                <p><strong>Periode:</strong> 2017 - 2020</p>
+                <p><strong>Deskripsi:</strong> Mengembangkan kemampuan akademis dan sosial, serta terlibat aktif dalam kegiatan ekstrakurikuler seperti teater dan klub sains.</p>
+     
+                <h3>SD Yadika 3</h3>
+                <p><strong>Periode:</strong> 2011 - 2017</p>
+                <p><strong>Deskripsi:</strong> Membangun dasar pengetahuan di berbagai bidang serta terlibat dalam berbagai kegiatan seni dan olahraga. </p>
+     
+                <h3>TK Kusuma Jaya</h3>
+                <p><strong>Periode:</strong> 2009 - 2011</p>
+                <p><strong>Deskripsi:</strong> Mempelajari dasar-dasar keterampilan sosial, kreatifitas, dan pembelajaran dini. Aktif dalam berbagai kegiatan bermain dan belajar.</p>
+        </div>
+    `;
+}
+
+        function tampilpengalaman() {
+            document.querySelector("#biodataDhea").innerHTML = `
+            <h2><center>Riwayat Pengalaman</center></h2>
+
+                <h3>Sekretaris Rohani Kristen (Rokris) di SMP Yadika 5</h3>
+                <p><strong>Tahun:</strong> 2019 - 2020 </p>
+                <p><strong>Tanggung Jawab:</strong> Membantu dalam pengelolaan administrasi dan agenda kegiatan rohani di sekolah.</p>
+
+                <h3>Panitia Peringatan Hari Ulang Tahun (HUT) Yadika</h3>
+                <p><strong>Tahun:</strong> 2022</p>
+                <p><strong>Tanggung Jawab:</strong> Menjadi bagian dari tim pendukung dalam acara peringatan HUT Yadika, membantu dalam persiapan dekorasi dan logistik acara sekolah.</p>
+
+                <h3>Relawan Acara Natal Gereja</h3>
+                <p><strong>Tahun:</strong> 2020, 2021, 2022</p>
+                <p><strong>Tanggung Jawab:</strong> Terlibat sebagai relawan dalam persiapan dekorasi dan pengaturan teknis acara perayaan Natal di gereja, membantu bagian logistik serta mendukung acara dengan peran pendukung.</p>
+            `;
+        }
+
+
+        function tampilkeahlian() {
+            document.querySelector("#biodataDhea").innerHTML = `
+            <h2><center>Daftar Keahlian</center></h2>
+
+                <h3>Bahasa Pemrograman</h3>
+                <p>Python (masih belajar), Java (dasar), JavaScript (pemula), C++ (baru mulai)</p>
+                <h3>Pengembangan Web</h3>
+                <p>HTML, CSS (buat dasar-dasar web), PHP, MySQL, React.js (masih eksplorasi)</p>
+                <h3>Keterampilan Lain</h3>
+                <p>Komunikasi efektif (masih diasah), kerja tim (tergantung timnya, mode introvert on)</p>
+            `;
+        }
+
+
+        function tampilpublikasi() {
+            document.querySelector("#biodataDhea").innerHTML = `
+            <h2><center>Riwayat Proyek dan Publikasi</center></h2>
+
+                <h3>Analisis Jaringan Sosial tentang Berita Hoaks di Twitter</h3>
+                <p><strong>Tahun:</strong> 2023 </p>
+                <p>Proyek yang menganalisis penyebaran berita hoaks di Twitter untuk memahami pola distribusi dan dampaknya terhadap opini publik.</p>
+
+                <h3>Studi Tentang Dampak Pembelajaran Daring Terhadap Motivasi Belajar</h3>
+                <p><strong>Tahun:</strong> 2021 </p>
+                <p>Makalah penelitian yang membahas bagaimana pembelajaran daring mempengaruhi motivasi dan hasil belajar siswa selama pandemi.</p>
+    `;
+        }
+    </script>
+</head>
+
+<body onload="tampilbiodata()">
     <header>
-        <h1>Profil Data Diri</h1>
-        <nav>
-            <a href="#">Beranda</a>
-            <a href="#">Tentang</a>
-            <a href="#">Kontak</a>
-        </nav>
+        <div class="header-container">
+            <img src="ppDhea.jpg" alt="Foto Dhea" class="profile-photo">
+            <h1>Biodata Diri</h1>
+        </div>
     </header>
 
-    <div class="container">
-        <h1>Profil Saya</h1>
-        <div class="profile">
-<<<<<<< HEAD
-            <img src="ppSalsa.png" alt="Foto Salsa">
-            <div class="info"> 
-                <p><strong>Nama:</strong> Dianca Salsabila Kencana Ningrat</p>
-                <p><strong>NIM:</strong> 2022081005 </p>
-                <p><strong>Tanggal Lahir:</strong> 3 Juni 2004 </p>
-                <p><strong>Prodi:</strong> Sistem Informasi</p>
-                <p><strong>Email:</strong> diancasalsabilaa@gmail.com </p>
-                <p><strong>Telepon:</strong> +6283142555307 </p>
-=======
-            <img src="ppDhea.jpg" alt="Foto Dhea">
-            <div class="info">
-                <p><strong>Nama:</strong> Dhea Mettana Kian Q </p>
-                <p><strong>NIM:</strong> 2023081002 </p>
-                <p><strong>Tanggal Lahir:</strong> 10 Mei 2005 </p>
-                <p><strong>Prodi:</strong> Sistem Informasi</p>
-                <p><strong>Email:</strong> dheamettanakianq@gmail.com </p>
-                <p><strong>Telepon:</strong> +62895333959819 </p>
->>>>>>> a8f959ed9a2dd560c9909d5c2d75cd574b726d36
-            </div>
-            <div class="map-container">
-                <iframe 
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3965.781438323528!2d106.72287607475108!3d-6.292430293696586!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f007dedc7de1%3A0x70288cde58f42a97!2sUPJ%20Bintaro!5e0!3m2!1sid!2sid!4v1727238822657!5m2!1sid!2sid" 
-                    width="100%" 
-                    height="100%" 
-                    style="border:0;" 
-                    allowfullscreen="" 
-                    loading="lazy" 
-                    referrerpolicy="no-referrer-when-downgrade">
-                </iframe>
-            </div>
-        </div>
+    <main class="wrapper">
+        <nav>
+            <a href="#biodata" id="biodata" onclick="tampilbiodata();">Biodata</a><br>
+            <a href="#pendidikan" id="pendidikan" onclick="tampilpendidikan();">Pendidikan</a><br>
+            <a href="#pengalaman" id="pengalaman" onclick="tampilpengalaman();">Pengalaman</a><br>
+            <a href="#keahlian" id="keahlian" onclick="tampilkeahlian();">Keahlian</a><br>
+            <a href="#publikasi" id="publikasi" onclick="tampilpublikasi();">Publikasi</a><br>
+        </nav>
 
-        <div class="fun-fact">
-            <p>KELOMPOK 5</p>
-        </div>
-    </div>
+        <section>
+            <div id="biodataDhea"></div>
+        </section>
 
-    <div class="friends-section">
-        <h2>Profil Kelompok Saya</h2>
-        <div class="friends-grid">
-            <div class="friend">
-                <img src="ppJasmine.jpeg" alt="Foto Jasmine">
-                <p><strong>Jasmine</strong></p>
-            </div>
-            <div class="friend">
-                <img src="ppAundrel.jpeg" alt="Foto Aundrel">
-                <p><strong>Aundrel</strong></p>
-            </div>
-            <div class="friend">
-<<<<<<< HEAD
-                <img src="ppDhea.jpeg" alt="Foto Dhea">
-=======
-                <img src="ppSalsa.jpeg" alt="Foto Salsa">
->>>>>>> a8f959ed9a2dd560c9909d5c2d75cd574b726d36
-                <p><strong>Salsa</strong></p>
-            </div>
-        </div>
-    </div>
+        <aside>
+            <h3>Hobi</h3>
+            <ul>
+                <li>Main</li>
+                <li>Membaca</li>
+                <li>Olahraga</li>
+                <li>Berkebun</li>
+                <li>Menonton film</li>
+                <li>Bersepeda</li>
+                <li>Menggambar</li>
+                <li>Memasak</li>
+                <li>Fotografi</li>
+            </ul>
+        </aside>
+    </main>
 
     <footer>
-        &copy; 2024. Semua Hak Dilindungi.
+        <div class="footer-container">
+            <div class="footer-left">
+                <a href="https://instagram.com/dhea_kian" target="_blank">
+                    <img src="igicon.jpg" alt="Instagram" class="social-icon" style="width:30px; height:30px;">
+                </a>
+                <a href="https://youtube.com/channel/dheamettanakianq1643" target="_blank">
+                    <img src="yticon.jpg" alt="YouTube" class="social-icon" style="width:30px; height:30px;">
+                </a>
+                <a href="https://wa.me/62895333959819" target="_blank">
+                    <img src="waicon.jpg" alt="WhatsApp" class="social-icon" style="width:30px; height:30px;">
+                </a>
+            </div>
+            <div class="footer-right">
+                <p><strong>Bodata</strong> - Tempat inspirasi dan informasi terkini untuk generasi muda.</p>
+                <p><em>"Knowledge is power." - Francis Bacon</em></p>
+            </div>
+        </div>
+        <p>© Copyright 2024. All rights reserved.</p>
     </footer>
-
+    
+    
+    
 </body>
 </html>
