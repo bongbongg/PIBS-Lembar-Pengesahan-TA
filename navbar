@@ -1,0 +1,41 @@
+<?php
+// Menentukan peran pengguna berdasarkan session
+if (isset($_SESSION['idDosen'])) {
+    $role = 'dosen'; // Pengguna yang login sebagai dosen
+} elseif (isset($_SESSION['nim'])) {
+    $role = 'mahasiswa'; // Pengguna yang login sebagai mahasiswa
+} else {
+    $role = ''; // Jika tidak ada pengguna yang login
+}
+?>
+
+<link rel="stylesheet" href="css/styles.css">
+
+<div id="layout">
+    <div class="row">
+        <!-- Navigasi Vertikal -->
+        <nav id="nav-container">
+            <ul>
+                <li><a href="dashboard.php">Dashboard</a></li>
+
+                <?php if ($role == 'dosen') { ?>
+                    <li><a href="manajemen_mata_kuliah.php">Manajemen Mata Kuliah</a></li>
+                    <li><a href="tugas_penilaian.php">Tugas dan Penilaian</a></li>
+                    <li><a href="jadwal_kuliah.php">Jadwal Kuliah</a></li>
+                    <li><a href="daftar_mahasiswa.php">Daftar Mahasiswa</a></li>
+                    <li><a href="pengumuman.php">Pengumuman</a></li>
+                <?php } ?>
+
+                <?php if ($role == 'mahasiswa') { ?>
+                    <li><a href="jadwal_kuliah.php">Jadwal Kuliah</a></li>
+                    <li><a href="tugas.php">Tugas</a></li>
+                    <li><a href="nilai.php">Nilai</a></li>
+                    <li><a href="forum_diskusi.php">Forum Diskusi</a></li>
+                <?php } ?>
+
+                <li><a href="profil.php">Profil</a></li>
+                <li><a href="logout.php">Logout</a></li>
+            </ul>
+        </nav>
+
+        
