@@ -1,0 +1,259 @@
+<?php
+date_default_timezone_set('Asia/Jakarta'); // Set zona waktu ke Jakarta
+require 'koneksi.php';
+include 'header.php';
+
+// Cek apakah mahasiswa sudah login
+if (!isset($_SESSION['nim'])) {
+    header('Location: login.php');
+    exit;
+}
+
+// Ambil data mahasiswa
+$NIM = $_SESSION['nim'];
+$stmt = $conn->prepare("SELECT nama, program_studi FROM mahasiswa WHERE NIM = ?");
+$stmt->bind_param('s', $NIM);
+$stmt->execute();
+$result = $stmt->get_result();
+$mahasiswa = $result->fetch_assoc();
+$stmt->close();
+
+// Ambil data dosen
+$stmt = $conn->prepare("SELECT idDosen, nama_dosen FROM dosen");
+$stmt->execute();
+$result = $stmt->get_result();
+$dosen_data = [];
+while ($row = $result->fetch_assoc()) {
+    $dosen_data[$row['idDosen']] = $row['nama_dosen'];
+}
+$stmt->close();
+
+// Cek apakah mahasiswa sudah mengajukan sebelumnya
+$stmt = $conn->prepare("SELECT * FROM pengajuan WHERE NIM = ? ORDER BY tanggal_pengajuan DESC LIMIT 1");
+$stmt->bind_param('s', $NIM);
+$stmt->execute();
+$pengajuan_terakhir = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+
+// Proses Pengajuan Lembar Pengesahan
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_pengajuan'])) {
+    $judul = $_POST['judul'];
+    $file = $_FILES['file']['name'];
+    $file_tmp = $_FILES['file']['tmp_name'];
+    $dosen_pembimbing = $_POST['dosen_pembimbing'];
+    $dosen_penguji1 = $_POST['dosen_penguji1'];
+    $dosen_penguji2 = $_POST['dosen_penguji2'];
+    $ka_prodi = $_POST['ka_prodi'];
+    $dekan = $_POST['dekan'];
+
+    $allowed_extensions = ['pdf', 'docx', 'doc'];
+    $file_extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+    if (!in_array($file_extension, $allowed_extensions)) {
+        $_SESSION['message'] = 'File tidak valid. Gunakan PDF, DOCX, atau DOC.';
+        header('Location: pengajuan.php');
+        exit;
+    }
+
+    $max_file_size = 5 * 1024 * 1024;
+    if ($_FILES['file']['size'] > $max_file_size) {
+        $_SESSION['message'] = 'Ukuran file terlalu besar. Maksimal 5MB.';
+        header('Location: pengajuan.php');
+        exit;
+    }
+
+    $upload_dir = 'uploads/';
+    if (!file_exists($upload_dir)) {
+        mkdir($upload_dir, 0777, true);
+    }
+
+    if ($file) {
+        $file_path = $upload_dir . time() . '_' . basename($file);
+        if (!move_uploaded_file($file_tmp, $file_path)) {
+            $_SESSION['message'] = 'Gagal mengupload file.';
+            header('Location: pengajuan.php');
+            exit;
+        }
+    } else {
+        $file_path = $pengajuan_terakhir['file'];
+    }
+
+    $tanggal_pengajuan = date('Y-m-d H:i:s');
+
+    if ($pengajuan_terakhir) {
+        $stmt = $conn->prepare("UPDATE pengajuan SET judul = ?, file = ?, dosen_pembimbing = ?, dosen_penguji1 = ?, dosen_penguji2 = ?, ka_prodi = ?, dekan = ?, status = 'Menunggu' WHERE NIM = ?");
+        $stmt->bind_param('sssssssi', $judul, $file_path, $dosen_pembimbing, $dosen_penguji1, $dosen_penguji2, $ka_prodi, $dekan, $NIM);
+    } else {
+        $stmt = $conn->prepare("INSERT INTO pengajuan (NIM, tanggal_pengajuan, judul, file, dosen_pembimbing, dosen_penguji1, dosen_penguji2, ka_prodi, dekan, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Menunggu')");
+        $stmt->bind_param('sssssssss', $NIM, $tanggal_pengajuan, $judul, $file_path, $dosen_pembimbing, $dosen_penguji1, $dosen_penguji2, $ka_prodi, $dekan);
+    }
+
+    if ($stmt->execute()) {
+        $_SESSION['message'] = 'Pengajuan berhasil diperbarui!';
+    } else {
+        $_SESSION['message'] = 'Terjadi kesalahan saat memperbarui pengajuan.';
+    }
+
+    $stmt->close();
+    header('Location: pengajuan.php');
+    exit;
+}
+
+$stmt = $conn->prepare("SELECT * FROM pengajuan WHERE NIM = ? ORDER BY tanggal_pengajuan DESC");
+$stmt->bind_param('s', $NIM);
+$stmt->execute();
+$riwayat_pengajuan = $stmt->get_result();
+$stmt->close();
+
+$status_terakhir = $pengajuan_terakhir['status'] ?? '';
+$status_pengajuan = ($status_terakhir === 'Disetujui') ? 'Cetak Hasil' : 'Perbarui Pengajuan';
+
+function getStatus($status) {
+    switch ($status) {
+        case 'Disetujui':
+            return '<span class="approved">Disetujui</span>';
+        case 'Ditolak':
+            return '<span class="rejected">Ditolak</span>';
+        default:
+            return '<span class="pending">Menunggu</span>';
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengajuan Lembar Pengesahan</title>
+    <link rel="stylesheet" href="css/styles.css">
+
+</head>
+<body>
+    <?php include 'nav.php'; ?>
+    <div class="row">
+        <div class="container-welcome">
+            <div class="welcome-box">
+                <p>SELAMAT DATANG</p><br>
+                <p>Nama: <?php echo htmlspecialchars($mahasiswa['nama']); ?></p>
+                <p>Program Studi: <?php echo htmlspecialchars($mahasiswa['program_studi']); ?></p>
+            </div>
+
+            <!-- Formulir Pengajuan Section -->
+            <?php if ($status_terakhir !== 'Disetujui'): ?>
+                <h3><center>Formulir Pengajuan:</center></h3>
+                <form method="POST" enctype="multipart/form-data">
+            <label>Judul:</label>
+            <input type="text" name="judul" value="<?php echo htmlspecialchars($pengajuan_terakhir['judul'] ?? ''); ?>" required>
+            <label>File:</label>
+            <input type="file" name="file">
+            <label>Dosen Pembimbing:</label>
+            <select name="dosen_pembimbing" required>
+                <option value="">Pilih Dosen Pembimbing</option>
+                <?php foreach ($dosen_data as $id => $name): ?>
+                    <option value="<?php echo htmlspecialchars($id); ?>" 
+                    <?php echo isset($pengajuan_terakhir['dosen_pembimbing']) && $id == $pengajuan_terakhir['dosen_pembimbing'] ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($name); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <label>Dosen Penguji 1:</label>
+            <select name="dosen_penguji1" required>
+                <option value="">Pilih Dosen Penguji 1</option>
+                <?php foreach ($dosen_data as $id => $name): ?>
+                    <option value="<?php echo htmlspecialchars($id); ?>" 
+                    <?php echo isset($pengajuan_terakhir['dosen_penguji1']) && $id == $pengajuan_terakhir['dosen_penguji1'] ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($name); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <label>Dosen Penguji 2:</label>
+            <select name="dosen_penguji2" required>
+                <option value="">Pilih Dosen Penguji 2</option>
+                <?php foreach ($dosen_data as $id => $name): ?>
+                    <option value="<?php echo htmlspecialchars($id); ?>" 
+                    <?php echo isset($pengajuan_terakhir['dosen_penguji2']) && $id == $pengajuan_terakhir['dosen_penguji2'] ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($name); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <label>Ketua Program Studi:</label>
+            <select name="ka_prodi" required>
+                <option value="">Pilih Ketua Prodi</option>
+                <?php foreach ($dosen_data as $id => $name): ?>
+                    <option value="<?php echo htmlspecialchars($id); ?>" 
+                    <?php echo isset($pengajuan_terakhir['ka_prodi']) && $id == $pengajuan_terakhir['ka_prodi'] ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($name); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <label>Dekan:</label>
+            <select name="dekan" required>
+                <option value="">Pilih Dekan</option>
+                <?php foreach ($dosen_data as $id => $name): ?>
+                    <option value="<?php echo htmlspecialchars($id); ?>" 
+                    <?php echo isset($pengajuan_terakhir['dekan']) && $id == $pengajuan_terakhir['dekan'] ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($name); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <button type="submit" name="submit_pengajuan" class="btn"><?php echo htmlspecialchars($status_pengajuan); ?></button>
+            </form>
+            <?php else: ?>
+                <a href="cetak_hasil.php" class="btn">Cetak Hasil</a>
+            <?php endif; ?>
+
+    <h3>Riwayat Pengajuan:</h3>
+    <table>
+        <tr>
+            <th>Judul</th>
+            <th>Tanggal Pengajuan</th>
+            <th>File</th>
+            <th>Dosen</th>
+            <th>Status</th>
+        </tr>
+        <?php if ($riwayat_pengajuan && $riwayat_pengajuan->num_rows > 0): ?>
+            <?php while ($row = $riwayat_pengajuan->fetch_assoc()): ?>
+                <tr>
+                    <td><?php echo htmlspecialchars($row['judul']); ?></td>
+                    <td><?php echo date('H:i:s d-m-Y', strtotime($row['tanggal_pengajuan'])); ?></td>
+                    <td><a href="uploads/<?php echo htmlspecialchars($row['file']); ?>" target="_blank">Lihat File</a></td>
+                    <td>
+                        <div>
+                            <strong><?php echo htmlspecialchars($dosen_data[$row['dosen_pembimbing']] ?? ''); ?></strong>
+                            <span class="status-box"><?php echo getStatus($row['status_pembimbing']); ?></span>
+                        </div>
+                        <div>
+                            <strong><?php echo htmlspecialchars($dosen_data[$row['dosen_penguji1']] ?? ''); ?></strong>
+                            <span class="status-box"><?php echo getStatus($row['status_penguji1']); ?></span>
+                        </div>
+                        <div>
+                            <strong><?php echo htmlspecialchars($dosen_data[$row['dosen_penguji2']] ?? ''); ?></strong>
+                            <span class="status-box"><?php echo getStatus($row['status_penguji2']); ?></span>
+                        </div>
+                        <div>
+                            <strong><?php echo htmlspecialchars($dosen_data[$row['ka_prodi']] ?? ''); ?></strong>
+                            <span class="status-box"><?php echo getStatus($row['status_ka_prodi']); ?></span>
+                        </div>
+                        <div>
+                            <strong><?php echo htmlspecialchars($dosen_data[$row['dekan']] ?? ''); ?></strong>
+                            <span class="status-box"><?php echo getStatus($row['status_dekan']); ?></span>
+                        </div>
+                    </td>
+                    <td><?php echo htmlspecialchars($row['status']); ?></td>
+                </tr>
+            <?php endwhile; ?>
+        <?php else: ?>
+            <tr><td colspan="5">Belum ada pengajuan.</td></tr>
+        <?php endif; ?>
+        </table>
+</div>
+</body>
+</html>
+
+<aside>
+            <?php include 'aside_mahasiswa.php'; ?>
+        </aside>
+    </div>
+    </div>
+    <?php include 'footer.php'; ?>
+</body>
